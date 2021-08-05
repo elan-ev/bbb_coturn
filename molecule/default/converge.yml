@@ -1,0 +1,21 @@
+---
+
+- name: Converge for Centos
+  hosts: coturn_centos
+  pre_tasks:
+    - name: install firewalld
+      dnf:
+        name: firewalld
+    - name: enable firewalld
+      service:
+        name: firewalld
+        enabled: true
+        state: started
+  roles:
+    - role: elan.bbb_coturn
+      configure_for_firewalld: true
+
+- name: Converge for Ubuntu
+  hosts: coturn_ubuntu
+  roles:
+    - role: elan.bbb_coturn

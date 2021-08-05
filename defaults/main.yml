@@ -1,0 +1,75 @@
+---
+
+listening_port: 3478
+min_port: 32769
+max_port: 65535
+listening_ip: '{{ ansible_host }}'
+
+# You need to set the same static authentification secret
+# for this coturn instance here *and* in BigBlueButton.
+static_auth_secret: ''
+
+# Realm of you coturn
+# If this variable is empty or undefined,
+# the default of coturn is to fall back
+# to the host domain name.
+realm: ''
+
+# The tls variables should all be defined if you set
+# use_tls to true (recommended).
+use_tls: true
+tls_listening_port: 443
+# If you use tls you need to define the directory where
+# your tls certificate files are located.
+# This directory should already exist on the target host.
+tls_cert_dir: '/etc/ssl/certs'
+# This role automatically installs dummy tls files that you
+# can write over later with your actual tls files.
+# Alternatively, you can specify here the path to the files
+# that should be copied to the host.
+tls_cert: '{{ tls_cert_dir }}/{{ inventory_hostname }}.cert'
+tls_key: '{{ tls_cert_dir }}/{{ inventory_hostname }}.key'
+# You can specify the coturn tls_group (optional).
+# tls_group:
+
+# coturn will deny these ip addresses
+denied_peer_ips:
+  - 10.0.0.0-10.255.255.255
+  - 100.64.0.0-100.127.255.255
+  - 169.254.0.0-169.254.255.255
+  - 172.16.0.0-172.31.255.255
+  - 192.0.0.0-192.0.0.255
+  - 192.0.2.0-192.0.2.255
+  - 198.18.0.0-198.19.255.255
+  - 198.51.100.0-198.51.100.255
+  - 203.0.113.0-203.0.113.255
+  - fc00::-fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+  - fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+  - ::ffff:0:0-::ffff:ffff:ffff
+  - 64:ff9b::-64:ff9b::ffff:ffff
+  - 64:ff9b:1::-64:ff9b:1:ffff:ffff:ffff:ffff:ffff
+  - 2001::-2001:1ff:ffff:ffff:ffff:ffff:ffff:ffff
+  - 2001:db8::-2001:db8:ffff:ffff:ffff:ffff:ffff:ffff
+  - 2002::-2002:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+
+# additional security parameters
+no_software_attribute: false
+stale_nonce: 600
+user_quota: 100
+total_quota: 240000
+
+# coturn username on the host
+turn_user: '{{ "coturn" if ansible_os_family == "RedHat" else "turnserver" }}'
+
+# default coturn config template file
+# Change this to your custom config template file
+# if you desire a different configuration
+# from the one the values above can provide you.
+config_template: turnserver.conf
+
+# activate firewall configuration
+configure_for_firewalld: false
+configure_for_ufw: false
+
+# activate logrotate
+configure_logrotate: false

@@ -1,0 +1,29 @@
+---
+
+name: molecule
+
+on:  # yamllint disable-line rule:truthy
+  - push
+  - pull_request
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install dependencies
+        run: >
+          pip3 install
+          ansible
+          ansible-lint
+          yamllint
+          molecule
+          molecule-docker
+          molecule-podman
+
+      - name: test playbook
+        run: molecule test --driver-name docker
+        env:
+          PY_COLORS: '1'

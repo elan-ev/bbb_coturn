@@ -1,0 +1,8 @@
+{% if item.registry is defined %}
+FROM {{ item.registry.url }}/{{ item.image }}
+{% else %}
+FROM {{ item.image }}
+{% endif %}
+
+# Install dependencies
+RUN apt-get update && apt-get install -y python sudo bash ca-certificates iproute2 ufw init && apt-get clean

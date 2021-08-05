@@ -1,0 +1,146 @@
+---
+
+- name: Install coturn
+  package:
+    name: coturn
+
+- name: Install role dependencies
+  package:
+    name: acl
+
+- name: Create systemd override for coturn
+  block:
+    - name: Create needed folder
+      file:
+        path: /etc/systemd/system/coturn.service.d/
+        state: directory
+        mode: '0755'
+    - name: Copy coturn systemd override file
+      copy:
+        src: override.conf
+        dest: /etc/systemd/system/coturn.service.d/override.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify:
+        - systemd daemon-reload
+        - restart coturn
+
+- name: Configure coturn
+  template:
+    src: '{{ config_template }}'
+    dest: /etc/turnserver.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart coturn
+
+- name: Manage tls permissions
+  block:
+    - name: Fail if tls should be used but required values are not set
+      assert:
+        that:
+          - tls_listening_port is defined and tls_listening_port is truthy
+          - tls_cert_dir is defined and tls_cert_dir is truthy
+    - name: Add turnserver user to TLS group
+      user:
+        name: '{{ turn_user }}'
+        groups: '{{ tls_group }}'
+        append: true
+      when: tls_group is defined and tls_group is truthy
+    - name: Grant turnserver user access to certificate folder
+      acl:
+        path: '{{ tls_cert_dir }}'
+        entity: '{{ turn_user }}'
+        etype: user
+        permissions: rx
+        recursive: true
+        state: present
+    - name: Copy Diffie-Hellmann parameter
+      copy:
+        src: dhparam.pem
+        dest: /etc/dhparam.pem
+        owner: root
+        group: root
+        mode: '0644'
+  when: use_tls
+
+- name: Create lograte structure
+  block:
+    - name: Create needed folder
+      file:
+        path: /var/log/{{ turn_user }}
+        owner: '{{ turn_user }}'
+        group: '{{ turn_user }}'
+        state: directory
+        mode: '0755'
+    - name: Copy logrotate config
+      copy:
+        src: logging.conf
+        dest: /etc/logrotate.d/coturn
+        owner: root
+        group: root
+        mode: '0644'
+  when: configure_logrotate
+
+- name: configure firewalld
+  block:
+    - name: firewalld enable coturn standard ports
+      firewalld:
+        port: '{{ item.port }}/{{ item.proto }}'
+        permanent: true
+        state: enabled
+      loop:
+        - port: '{{ listening_port }}'
+          proto: tcp
+        - port: '{{ listening_port }}'
+          proto: udp
+        - port: '{{ min_port }}-{{ max_port }}'
+          proto: udp
+    - name: firewalld enable coturn tls ports
+      firewalld:
+        port: '{{ item.port }}/{{ item.proto }}'
+        permanent: true
+        state: enabled
+      loop:
+        - port: '{{ tls_listening_port }}'
+          proto: tcp
+        - port: '{{ tls_listening_port }}'
+          proto: udp
+      when: use_tls
+  notify: restart coturn
+  when: configure_for_firewalld
+
+- name: configure ufw
+  block:
+    - name: ufw allow coturn standard ports
+      ufw:
+        rule: allow
+        port: '{{ item.port }}'
+        proto: '{{ item.proto }}'
+      loop:
+        - port: '{{ listening_port }}'
+          proto: tcp
+        - port: '{{ listening_port }}'
+          proto: udp
+        - port: '{{ min_port }}:{{ max_port }}'
+          proto: udp
+    - name: ufw allow coturn tls port
+      ufw:
+        rule: allow
+        port: '{{ item.port }}'
+        proto: '{{ item.proto }}'
+      loop:
+        - port: '{{ tls_listening_port }}'
+          proto: tcp
+        - port: '{{ tls_listening_port }}'
+          proto: udp
+      when: use_tls
+  notify: restart coturn
+  when: configure_for_ufw
+
+- name: start and enable coturn service
+  service:
+    name: coturn
+    state: started
+    enabled: true
