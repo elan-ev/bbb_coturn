@@ -3,7 +3,7 @@
 listening_port: 3478
 min_port: 32769
 max_port: 65535
-listening_ip: '{{ ansible_host }}'
+listening_ip: '{{ lookup("dig", ansible_host) }}'
 
 # You need to set the same static authentification secret
 # for this coturn instance here *and* in BigBlueButton.
