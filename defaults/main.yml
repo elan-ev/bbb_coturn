@@ -27,7 +27,7 @@ tls_cert_dir: '/etc/ssl/certs'
 # can write over later with your actual tls files.
 # Alternatively, you can specify here the path to the files
 # that should be copied to the host.
-tls_cert: '{{ tls_cert_dir }}/{{ inventory_hostname }}.cert'
+tls_cert: '{{ tls_cert_dir }}/{{ inventory_hostname }}.crt'
 tls_key: '{{ tls_cert_dir }}/{{ inventory_hostname }}.key'
 # You can specify the coturn tls_group (optional).
 # tls_group:
