@@ -14,8 +14,14 @@
   roles:
     - role: elan.bbb_coturn
       configure_for_firewalld: true
+      listening_ip: 127.0.0.1
 
 - name: Converge for Ubuntu
   hosts: coturn_ubuntu
+  pre_tasks:
+    - name: update apt cache
+      apt:
+        update_cache: true
   roles:
     - role: elan.bbb_coturn
+      listening_ip: 127.0.0.1
