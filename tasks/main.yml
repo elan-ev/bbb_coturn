@@ -59,7 +59,7 @@
     - name: Copy Diffie-Hellmann parameter
       copy:
         src: dhparam.pem
-        dest: /etc/dhparam.pem
+        dest: /etc/ssl/dhparam.pem
         owner: root
         group: root
         mode: '0644'
@@ -89,6 +89,7 @@
       firewalld:
         port: '{{ item.port }}/{{ item.proto }}'
         permanent: true
+        immediate: true
         state: enabled
       loop:
         - port: '{{ listening_port }}'
@@ -101,12 +102,20 @@
       firewalld:
         port: '{{ item.port }}/{{ item.proto }}'
         permanent: true
+        immediate: true
         state: enabled
       loop:
         - port: '{{ tls_listening_port }}'
           proto: tcp
         - port: '{{ tls_listening_port }}'
           proto: udp
+      when: use_tls
+    - name: allow https
+      firewalld:
+        service: https
+        permanent: true
+        immediate: true
+        state: enabled
       when: use_tls
   notify: restart coturn
   when: configure_for_firewalld
