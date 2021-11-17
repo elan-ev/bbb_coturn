@@ -34,17 +34,23 @@ tls_key: '{{ tls_cert_dir }}/{{ inventory_hostname }}.key'
 
 # coturn will deny these ip addresses
 denied_peer_ips:
+  # IPv4 Private-Use
   - 10.0.0.0-10.255.255.255
+  - 172.16.0.0-172.31.255.255
+  - 192.168.0.0-192.168.255.255
+  # Other IPv4 Special-Purpose addresses
   - 100.64.0.0-100.127.255.255
   - 169.254.0.0-169.254.255.255
-  - 172.16.0.0-172.31.255.255
   - 192.0.0.0-192.0.0.255
   - 192.0.2.0-192.0.2.255
   - 198.18.0.0-198.19.255.255
   - 198.51.100.0-198.51.100.255
   - 203.0.113.0-203.0.113.255
+  # IPv6 Unique-Local
   - fc00::-fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+  # IPv6 Link-Local Unicast
   - fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+  # Other IPv6 Special-Purpose assignments
   - ::ffff:0:0-::ffff:ffff:ffff
   - 64:ff9b::-64:ff9b::ffff:ffff
   - 64:ff9b:1::-64:ff9b:1:ffff:ffff:ffff:ffff:ffff
@@ -55,8 +61,8 @@ denied_peer_ips:
 # additional security parameters
 no_software_attribute: false
 stale_nonce: 600
-user_quota: 100
-total_quota: 240000
+user_quota: 0
+total_quota: 0
 
 # coturn username on the host
 turn_user: '{{ "coturn" if ansible_os_family == "RedHat" else "turnserver" }}'
