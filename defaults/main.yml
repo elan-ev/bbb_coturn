@@ -82,3 +82,15 @@ configure_logrotate: false
 
 # prometheus metrics
 metrics: false
+
+# suppress STUN functionality (TURN only)
+no_stun: false
+
+# no UDP client listener
+no_udp: false
+
+# no DTLS client listener
+no_dtls: false
+
+# no UDP relay endpoints are allowed
+no_udp_relay: false
