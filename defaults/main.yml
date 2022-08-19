@@ -79,3 +79,6 @@ configure_for_ufw: false
 
 # activate logrotate
 configure_logrotate: false
+
+# prometheus metrics
+metrics: false
