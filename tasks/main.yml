@@ -1,22 +1,22 @@
 ---
 
 - name: Install coturn
-  package:
+  ansible.builtin.package:
     name: coturn
 
 - name: Install role dependencies
-  package:
+  ansible.builtin.package:
     name: acl
 
 - name: Create systemd override for coturn
   block:
     - name: Create needed folder
-      file:
+      ansible.builtin.file:
         path: /etc/systemd/system/coturn.service.d/
         state: directory
         mode: '0755'
     - name: Copy coturn systemd override file
-      copy:
+      ansible.builtin.copy:
         src: override.conf
         dest: /etc/systemd/system/coturn.service.d/override.conf
         owner: root
@@ -27,7 +27,7 @@
         - restart coturn
 
 - name: Configure coturn
-  template:
+  ansible.builtin.template:
     src: '{{ config_template }}'
     dest: /etc/turnserver.conf
     owner: root
@@ -38,18 +38,18 @@
 - name: Manage tls permissions
   block:
     - name: Fail if tls should be used but required values are not set
-      assert:
+      ansible.builtin.assert:
         that:
           - tls_listening_port is defined and tls_listening_port is truthy
           - tls_cert_dir is defined and tls_cert_dir is truthy
     - name: Add turnserver user to TLS group
-      user:
+      ansible.builtin.user:
         name: '{{ turn_user }}'
         groups: '{{ tls_group }}'
         append: true
       when: tls_group is defined and tls_group is truthy
     - name: Grant turnserver user access to certificate folder
-      acl:
+      ansible.posix.acl:
         path: '{{ tls_cert_dir }}'
         entity: '{{ turn_user }}'
         etype: user
@@ -57,7 +57,7 @@
         recursive: true
         state: present
     - name: Copy Diffie-Hellmann parameter
-      copy:
+      ansible.builtin.copy:
         src: dhparam.pem
         dest: /etc/ssl/dhparam.pem
         owner: root
@@ -68,14 +68,14 @@
 - name: Create lograte structure
   block:
     - name: Create needed folder
-      file:
+      ansible.builtin.file:
         path: /var/log/{{ turn_user }}
         owner: '{{ turn_user }}'
         group: '{{ turn_user }}'
         state: directory
         mode: '0755'
     - name: Copy logrotate config
-      copy:
+      ansible.builtin.copy:
         src: logging.conf
         dest: /etc/logrotate.d/coturn
         owner: root
@@ -86,7 +86,7 @@
 - name: configure firewalld
   block:
     - name: firewalld enable coturn standard ports
-      firewalld:
+      ansible.builtin.firewalld:
         port: '{{ item.port }}/{{ item.proto }}'
         permanent: true
         immediate: true
@@ -99,7 +99,7 @@
         - port: '{{ min_port }}-{{ max_port }}'
           proto: udp
     - name: firewalld enable coturn tls ports
-      firewalld:
+      ansible.builtin.firewalld:
         port: '{{ item.port }}/{{ item.proto }}'
         permanent: true
         immediate: true
@@ -111,7 +111,7 @@
           proto: udp
       when: use_tls
     - name: allow https
-      firewalld:
+      ansible.builtin.firewalld:
         service: https
         permanent: true
         immediate: true
@@ -123,7 +123,7 @@
 - name: configure ufw
   block:
     - name: ufw allow coturn standard ports
-      ufw:
+      ansible.builtin.ufw:
         rule: allow
         port: '{{ item.port }}'
         proto: '{{ item.proto }}'
@@ -135,7 +135,7 @@
         - port: '{{ min_port }}:{{ max_port }}'
           proto: udp
     - name: ufw allow coturn tls port
-      ufw:
+      ansible.builtin.ufw:
         rule: allow
         port: '{{ item.port }}'
         proto: '{{ item.proto }}'
@@ -149,7 +149,7 @@
   when: configure_for_ufw
 
 - name: start and enable coturn service
-  service:
+  ansible.builtin.service:
     name: coturn
     state: started
     enabled: true

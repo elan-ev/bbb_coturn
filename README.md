@@ -6,6 +6,10 @@ This is an ansible-role to set up [coturn](https://github.com/coturn/coturn)
 to work with [BigBlueButton](https://github.com/bigbluebutton/bigbluebutton)
 and largely follows the [official BigBlueButton documentation](https://docs.bigbluebutton.org/admin/setup-turn-server.html).
 
+## Dependencies
+
+This role makes use of the `ansible.posix collection` (`ansible-galaxy collection install ansible.posix`).
+
 ## Role Variables
 
 For a full overview of configuration options look at the [defaults](defaults/main.yml).

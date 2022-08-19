@@ -5,5 +5,5 @@
   gather_facts: false
   tasks:
     - name: check that coturn is active
-      command:  # noqa no-changed-when command-instead-of-module
+      ansible.builtin.command:  # noqa no-changed-when command-instead-of-module
         cmd: systemctl is-active coturn

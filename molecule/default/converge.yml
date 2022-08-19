@@ -4,10 +4,10 @@
   hosts: coturn_centos
   pre_tasks:
     - name: install firewalld
-      dnf:
+      ansible.builtin.dnf:
         name: firewalld
     - name: enable firewalld
-      service:
+      ansible.builtin.service:
         name: firewalld
         enabled: true
         state: started
@@ -20,7 +20,7 @@
   hosts: coturn_ubuntu
   pre_tasks:
     - name: update apt cache
-      apt:
+      ansible.builtin.apt:
         update_cache: true
   roles:
     - role: elan.bbb_coturn

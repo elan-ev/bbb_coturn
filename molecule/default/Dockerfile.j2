@@ -1,8 +1,8 @@
-{% if item.registry is defined %}
-FROM {{ item.registry.url }}/{{ item.image }}
-{% else %}
 FROM {{ item.image }}
-{% endif %}
 
 # Install dependencies
-RUN apt-get update && apt-get install -y python sudo bash ca-certificates iproute2 ufw init && apt-get clean
+{% if "centos" in item.name %}
+RUN dnf install --refresh -y sudo systemd bash ca-certificates iproute python39 python3-libselinux
+{% else %}
+RUN apt-get update && apt-get install -y python sudo bash ca-certificates iproute2 init python3 && apt-get clean
+{% endif %}
