@@ -94,3 +94,10 @@ no_dtls: false
 
 # no UDP relay endpoints are allowed
 no_udp_relay: false
+
+# set allowed relay ips here
+allowed_peer_ips: []
+
+# The same as the value above, but with dns names
+# instead of ips; uses the dig-module to get the ips.
+allowed_peer_hosts: []

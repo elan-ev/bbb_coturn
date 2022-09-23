@@ -29,6 +29,12 @@ This way you can use this role for any coturn configuration that you might desir
 This role can configure firewalld or ufw for coturn.
 However, you have to tell it so explicitely by either setting `configure_for_firewalld` or `configure_for_ufw` to `true`.
 
+### Additional Hardening
+
+To prevent relaying traffic to other servers than your BigBlueButton nodes,
+you can set `allowed_peer_ips` to the IPs of your BigBlueButton nodes
+(or `allowed_peer_hosts` for the fqdns of the hosts to dig for them).
+
 ### TLS
 
 By default, tls is configured and thus you should check if the default variables make sense for your setup.
