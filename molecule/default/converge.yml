@@ -1,12 +1,11 @@
 ---
-
 - name: Converge for Centos
   hosts: coturn_centos
   pre_tasks:
-    - name: install firewalld
+    - name: Install firewalld
       ansible.builtin.dnf:
         name: firewalld
-    - name: enable firewalld
+    - name: Enable firewalld
       ansible.builtin.service:
         name: firewalld
         enabled: true
@@ -19,7 +18,7 @@
 - name: Converge for Ubuntu
   hosts: coturn_ubuntu
   pre_tasks:
-    - name: update apt cache
+    - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
   roles:

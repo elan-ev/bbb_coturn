@@ -1,9 +1,8 @@
 ---
-
 - name: Verify
   hosts: all
   gather_facts: false
   tasks:
-    - name: check that coturn is active
+    - name: Check that coturn is active
       ansible.builtin.command:  # noqa no-changed-when command-instead-of-module
         cmd: systemctl is-active coturn

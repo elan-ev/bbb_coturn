@@ -1,19 +1,18 @@
 ---
-
 listening_port: 3478
 min_port: 32769
 max_port: 65535
-listening_ip: '{{ lookup("dig", ansible_host) }}'
+listening_ip: "{{ lookup('dig', ansible_host) }}"
 
 # You need to set the same static authentification secret
 # for this coturn instance here *and* in BigBlueButton.
-static_auth_secret: ''
+static_auth_secret: ""
 
 # Realm of you coturn
 # If this variable is empty or undefined,
 # the default of coturn is to fall back
 # to the host domain name.
-realm: ''
+realm: ""
 
 # The tls variables should all be defined if you set
 # use_tls to true (recommended).
@@ -22,13 +21,13 @@ tls_listening_port: 443
 # If you use tls you need to define the directory where
 # your tls certificate files are located.
 # This directory should already exist on the target host.
-tls_cert_dir: '/etc/ssl/certs'
+tls_cert_dir: "/etc/ssl/certs"
 # This role automatically installs dummy tls files that you
 # can write over later with your actual tls files.
 # Alternatively, you can specify here the path to the files
 # that should be copied to the host.
-tls_cert: '{{ tls_cert_dir }}/{{ inventory_hostname }}.crt'
-tls_key: '{{ tls_cert_dir }}/{{ inventory_hostname }}.key'
+tls_cert: "{{ tls_cert_dir }}/{{ inventory_hostname }}.crt"
+tls_key: "{{ tls_cert_dir }}/{{ inventory_hostname }}.key"
 # You can specify the coturn tls_group (optional).
 # tls_group:
 
@@ -65,7 +64,7 @@ user_quota: 0
 total_quota: 0
 
 # coturn username on the host
-turn_user: '{{ "coturn" if ansible_os_family == "RedHat" else "turnserver" }}'
+turn_user: "{{ 'coturn' if ansible_os_family == 'RedHat' else 'turnserver' }}"
 
 # default coturn config template file
 # Change this to your custom config template file

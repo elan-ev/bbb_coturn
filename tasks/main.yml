@@ -1,5 +1,4 @@
 ---
-
 - name: Install coturn
   ansible.builtin.package:
     name: coturn
@@ -14,21 +13,21 @@
       ansible.builtin.file:
         path: /etc/systemd/system/coturn.service.d/
         state: directory
-        mode: '0755'
+        mode: "0755"
     - name: Copy coturn systemd override file
       ansible.builtin.copy:
         src: override.conf
         dest: /etc/systemd/system/coturn.service.d/override.conf
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
       notify:
         - systemd daemon-reload
         - restart coturn
 
 - name: Configure coturn
   ansible.builtin.template:
-    src: '{{ config_template }}'
+    src: "{{ config_template }}"
     dest: /etc/turnserver.conf
     owner: root
     group: root
@@ -44,14 +43,14 @@
           - tls_cert_dir is defined and tls_cert_dir is truthy
     - name: Add turnserver user to TLS group
       ansible.builtin.user:
-        name: '{{ turn_user }}'
-        groups: '{{ tls_group }}'
+        name: "{{ turn_user }}"
+        groups: "{{ tls_group }}"
         append: true
       when: tls_group is defined and tls_group is truthy
     - name: Grant turnserver user access to certificate folder
       ansible.posix.acl:
-        path: '{{ tls_cert_dir }}'
-        entity: '{{ turn_user }}'
+        path: "{{ tls_cert_dir }}"
+        entity: "{{ turn_user }}"
         etype: user
         permissions: rx
         recursive: true
@@ -62,7 +61,7 @@
         dest: /etc/ssl/dhparam.pem
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
   when: use_tls
 
 - name: Create lograte structure
@@ -70,47 +69,47 @@
     - name: Create needed folder
       ansible.builtin.file:
         path: /var/log/{{ turn_user }}
-        owner: '{{ turn_user }}'
-        group: '{{ turn_user }}'
+        owner: "{{ turn_user }}"
+        group: "{{ turn_user }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
     - name: Copy logrotate config
       ansible.builtin.copy:
         src: logging.conf
         dest: /etc/logrotate.d/coturn
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
   when: configure_logrotate
 
-- name: configure firewalld
+- name: Configure firewalld
   block:
-    - name: firewalld enable coturn standard ports
+    - name: Firewalld enable coturn standard ports
       ansible.builtin.firewalld:
-        port: '{{ item.port }}/{{ item.proto }}'
+        port: "{{ item.port }}/{{ item.proto }}"
         permanent: true
         immediate: true
         state: enabled
       loop:
-        - port: '{{ listening_port }}'
+        - port: "{{ listening_port }}"
           proto: tcp
-        - port: '{{ listening_port }}'
+        - port: "{{ listening_port }}"
           proto: udp
-        - port: '{{ min_port }}-{{ max_port }}'
+        - port: "{{ min_port }}-{{ max_port }}"
           proto: udp
-    - name: firewalld enable coturn tls ports
+    - name: Firewalld enable coturn tls ports
       ansible.builtin.firewalld:
-        port: '{{ item.port }}/{{ item.proto }}'
+        port: "{{ item.port }}/{{ item.proto }}"
         permanent: true
         immediate: true
         state: enabled
       loop:
-        - port: '{{ tls_listening_port }}'
+        - port: "{{ tls_listening_port }}"
           proto: tcp
-        - port: '{{ tls_listening_port }}'
+        - port: "{{ tls_listening_port }}"
           proto: udp
       when: use_tls
-    - name: allow https
+    - name: Allow https
       ansible.builtin.firewalld:
         service: https
         permanent: true
@@ -120,35 +119,35 @@
   notify: restart coturn
   when: configure_for_firewalld
 
-- name: configure ufw
+- name: Configure ufw
   block:
-    - name: ufw allow coturn standard ports
+    - name: Ufw allow coturn standard ports
       ansible.builtin.ufw:
         rule: allow
-        port: '{{ item.port }}'
-        proto: '{{ item.proto }}'
+        port: "{{ item.port }}"
+        proto: "{{ item.proto }}"
       loop:
-        - port: '{{ listening_port }}'
+        - port: "{{ listening_port }}"
           proto: tcp
-        - port: '{{ listening_port }}'
+        - port: "{{ listening_port }}"
           proto: udp
-        - port: '{{ min_port }}:{{ max_port }}'
+        - port: "{{ min_port }}:{{ max_port }}"
           proto: udp
-    - name: ufw allow coturn tls port
+    - name: Ufw allow coturn tls port
       ansible.builtin.ufw:
         rule: allow
-        port: '{{ item.port }}'
-        proto: '{{ item.proto }}'
+        port: "{{ item.port }}"
+        proto: "{{ item.proto }}"
       loop:
-        - port: '{{ tls_listening_port }}'
+        - port: "{{ tls_listening_port }}"
           proto: tcp
-        - port: '{{ tls_listening_port }}'
+        - port: "{{ tls_listening_port }}"
           proto: udp
       when: use_tls
   notify: restart coturn
   when: configure_for_ufw
 
-- name: start and enable coturn service
+- name: Start and enable coturn service
   ansible.builtin.service:
     name: coturn
     state: started
