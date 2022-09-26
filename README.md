@@ -2,7 +2,7 @@
 
 ![molecule](https://github.com/elan-ev/bbb_coturn/actions/workflows/molecule.yml/badge.svg)
 
-This is an ansible-role to set up [coturn](https://github.com/coturn/coturn)
+This is an ansible-role to set up [coturn](https://github.com/coturn/coturn) (currently in version `4.6.0`)
 to work with [BigBlueButton](https://github.com/bigbluebutton/bigbluebutton)
 and largely follows the [official BigBlueButton documentation](https://docs.bigbluebutton.org/admin/setup-turn-server.html).
 
@@ -34,6 +34,10 @@ However, you have to tell it so explicitely by either setting `configure_for_fir
 To prevent relaying traffic to other servers than your BigBlueButton nodes,
 you can set `allowed_peer_ips` to the IPs of your BigBlueButton nodes
 (or `allowed_peer_hosts` for the fqdns of the hosts to dig for them).
+
+This role also mimics the default behavior of coturn to switch on options
+that decrease the gain factor in STUN binding responses
+(`no_rfc5780`, `no_stun_backward_compatibility`, `response_origin_only_with_rfc5780`).
 
 ### TLS
 

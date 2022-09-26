@@ -100,3 +100,8 @@ allowed_peer_ips: []
 # The same as the value above, but with dns names
 # instead of ips; uses the dig-module to get the ips.
 allowed_peer_hosts: []
+
+# values to decrease gain factor in stun amplification
+no_rfc5780: true
+no_stun_backward_compatibility: true
+response_origin_only_with_rfc5780: true
