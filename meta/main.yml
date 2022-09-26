@@ -13,5 +13,5 @@ galaxy_info:
         - "8"
     - name: Ubuntu
       versions:
-        - all
+        - "focal"
 dependencies: []

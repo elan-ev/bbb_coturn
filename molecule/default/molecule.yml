@@ -14,7 +14,7 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
   - name: coturn_ubuntu
-    image: docker.io/ubuntu:latest
+    image: docker.io/ubuntu:focal
     pre_build_image: false
     privileged: true
     command: /sbin/init
@@ -24,6 +24,7 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 lint: |
+  set -e
   ansible-lint
   yamllint -c .yamllint .
 provisioner:

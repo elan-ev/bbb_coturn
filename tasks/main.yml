@@ -6,6 +6,7 @@
       - python3-firewall
 
 - name: Install coturn package on RedHat
+  when: ansible_os_family == "RedHat"
   block:
     - name: Install epel repo
       ansible.builtin.dnf:
@@ -14,12 +15,11 @@
       ansible.builtin.dnf:
         name: coturn
         enablerepo: epel
-  when: ansible_os_family == "RedHat"
 
 - name: Install coturn
+  when: ansible_os_family == "Debian"
   ansible.builtin.apt:
     name: coturn
-  when: ansible_os_family == "Debian"
 
 - name: Create systemd override for coturn
   block:
@@ -49,6 +49,7 @@
   notify: Restart coturn
 
 - name: Manage tls permissions
+  when: use_tls
   block:
     - name: Fail if tls should be used but required values are not set
       ansible.builtin.assert:
@@ -56,11 +57,11 @@
           - tls_listening_port is defined and tls_listening_port is truthy
           - tls_cert_dir is defined and tls_cert_dir is truthy
     - name: Add turnserver user to TLS group
+      when: tls_group is defined and tls_group is truthy
       ansible.builtin.user:
         name: "{{ turn_user }}"
         groups: "{{ tls_group }}"
         append: true
-      when: tls_group is defined and tls_group is truthy
     - name: Grant turnserver user access to certificate folder
       ansible.posix.acl:
         path: "{{ tls_cert_dir }}"
@@ -76,9 +77,9 @@
         owner: root
         group: root
         mode: "0644"
-  when: use_tls
 
 - name: Create lograte structure
+  when: configure_logrotate
   block:
     - name: Create needed folder
       ansible.builtin.file:
@@ -94,9 +95,10 @@
         owner: root
         group: root
         mode: "0644"
-  when: configure_logrotate
 
 - name: Configure firewalld
+  when: configure_for_firewalld
+  notify: Restart coturn
   block:
     - name: Firewalld enable coturn standard ports
       ansible.posix.firewalld:
@@ -130,10 +132,10 @@
         immediate: true
         state: enabled
       when: use_tls
-  notify: Restart coturn
-  when: configure_for_firewalld
 
 - name: Configure ufw
+  when: configure_for_ufw
+  notify: Restart coturn
   block:
     - name: Ufw allow coturn standard ports
       ansible.builtin.ufw:
@@ -158,8 +160,6 @@
         - port: "{{ tls_listening_port }}"
           proto: udp
       when: use_tls
-  notify: Restart coturn
-  when: configure_for_ufw
 
 - name: Start and enable coturn service
   ansible.builtin.service:
