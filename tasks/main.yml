@@ -1,11 +1,25 @@
 ---
-- name: Install coturn
-  ansible.builtin.package:
-    name: coturn
-
 - name: Install role dependencies
   ansible.builtin.package:
-    name: acl
+    name:
+      - acl
+      - python3-firewall
+
+- name: Install coturn package on RedHat
+  block:
+    - name: Install epel repo
+      ansible.builtin.dnf:
+        name: epel-release
+    - name: Install coturn
+      ansible.builtin.dnf:
+        name: coturn
+        enablerepo: epel
+  when: ansible_os_family == "RedHat"
+
+- name: Install coturn
+  ansible.builtin.apt:
+    name: coturn
+  when: ansible_os_family == "Debian"
 
 - name: Create systemd override for coturn
   block:
@@ -22,8 +36,8 @@
         group: root
         mode: "0644"
       notify:
-        - systemd daemon-reload
-        - restart coturn
+        - Systemd daemon-reload
+        - Restart coturn
 
 - name: Configure coturn
   ansible.builtin.template:
@@ -32,7 +46,7 @@
     owner: root
     group: root
     mode: 0644
-  notify: restart coturn
+  notify: Restart coturn
 
 - name: Manage tls permissions
   block:
@@ -85,7 +99,7 @@
 - name: Configure firewalld
   block:
     - name: Firewalld enable coturn standard ports
-      ansible.builtin.firewalld:
+      ansible.posix.firewalld:
         port: "{{ item.port }}/{{ item.proto }}"
         permanent: true
         immediate: true
@@ -98,7 +112,7 @@
         - port: "{{ min_port }}-{{ max_port }}"
           proto: udp
     - name: Firewalld enable coturn tls ports
-      ansible.builtin.firewalld:
+      ansible.posix.firewalld:
         port: "{{ item.port }}/{{ item.proto }}"
         permanent: true
         immediate: true
@@ -110,13 +124,13 @@
           proto: udp
       when: use_tls
     - name: Allow https
-      ansible.builtin.firewalld:
+      ansible.posix.firewalld:
         service: https
         permanent: true
         immediate: true
         state: enabled
       when: use_tls
-  notify: restart coturn
+  notify: Restart coturn
   when: configure_for_firewalld
 
 - name: Configure ufw
@@ -144,7 +158,7 @@
         - port: "{{ tls_listening_port }}"
           proto: udp
       when: use_tls
-  notify: restart coturn
+  notify: Restart coturn
   when: configure_for_ufw
 
 - name: Start and enable coturn service
