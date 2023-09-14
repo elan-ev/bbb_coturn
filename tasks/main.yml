@@ -29,7 +29,7 @@
         state: directory
         mode: "0755"
     - name: Copy coturn systemd override file
-      ansible.builtin.copy:
+      ansible.builtin.template:
         src: override.conf
         dest: /etc/systemd/system/coturn.service.d/override.conf
         owner: root
@@ -74,8 +74,8 @@
       ansible.builtin.copy:
         src: dhparam.pem
         dest: /etc/ssl/dhparam.pem
-        owner: root
-        group: root
+        owner: "{{ turn_user }}"
+        group: "{{ turn_user }}"
         mode: "0644"
 
 - name: Create lograte structure
