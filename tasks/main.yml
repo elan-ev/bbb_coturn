@@ -70,7 +70,7 @@
         permissions: rx
         recursive: true
         state: present
-    - name: Copy Diffie-Hellmann parameter
+    - name: Copy Diffie-Hellman parameter
       ansible.builtin.copy:
         src: dhparam.pem
         dest: /etc/ssl/dhparam.pem
