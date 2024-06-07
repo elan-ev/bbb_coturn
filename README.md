@@ -4,7 +4,7 @@
 
 This is an ansible-role to set up [coturn](https://github.com/coturn/coturn) (currently in version `4.6.0`)
 to work with [BigBlueButton](https://github.com/bigbluebutton/bigbluebutton)
-and largely follows the [official BigBlueButton documentation](https://docs.bigbluebutton.org/admin/setup-turn-server.html).
+and largely follows the [official BigBlueButton documentation](https://docs.bigbluebutton.org/administration/turn-server/).
 
 ## Dependencies
 
